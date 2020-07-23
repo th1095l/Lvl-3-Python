@@ -11,10 +11,10 @@ class ApplicationFramework(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         self.frames = {}
-        frame = StartPage(container, self)
-        self.frames[StartPage] = frame
+        frame = OpeningPage(container, self)
+        self.frames[OpeningPage] = frame
         frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(StartPage)
+        self.show_frame(OpeningPage)
 
     def show_frame(self, cont):
         frame = self.frames[cont]
