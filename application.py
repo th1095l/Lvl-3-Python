@@ -30,4 +30,13 @@ class OpeningPage(tk.Frame):
 
 
 app = ApplicationFramework()
+app.geometry("800x600")
+# Center application to center of screen | Source: https://yagisanatode.com/2018/02/24/how-to-center-the-main-window-on-the-screen-in-tkinter-with-python-3/
+windowWidth = app.winfo_reqwidth()
+windowHeight = app.winfo_reqheight()
+# Gets both half the screen width/height and window width/height
+positionRight = int(app.winfo_screenwidth()/3 - windowWidth/2)
+positionDown = int(app.winfo_screenheight()/3 - windowHeight)
+# Positions the window in the center of the page.
+app.geometry("+{}+{}".format(positionRight, positionDown))
 app.mainloop()
