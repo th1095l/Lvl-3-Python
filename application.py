@@ -27,6 +27,10 @@ class OpeningPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
+        name_label = tk.Label(self, text="Please enter your name:")
+        name_input = tk.Entry(self)
+        name_label.pack()
+        name_input.pack()
 
 
 app = ApplicationFramework()
