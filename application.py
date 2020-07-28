@@ -1,4 +1,5 @@
 import tkinter as tk
+from string import punctuation
 LARGE_FONT = ("Verdana", 12)
 
 class ApplicationFramework(tk.Tk):
@@ -20,6 +21,16 @@ class ApplicationFramework(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
+    @staticmethod
+    def name_validate_command(new_text):
+        # validation command for the name entry
+        for letter in new_text:
+            if letter.isdigit() or letter in punctuation:
+                return False
+        if len(new_text) > 20:
+            return False
+        return not new_text.isdigit()
+
 class OpeningPage(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -27,10 +38,13 @@ class OpeningPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
+        name_validation_command = self.register(ApplicationFramework.name_validate_command)
         name_label = tk.Label(self, text="Please enter your name:")
-        name_input = tk.Entry(self)
+        name_input = tk.Entry(self, validate='all', validatecommand=(name_validation_command, '%P'), font=("Calibri", 11))
         name_label.pack()
         name_input.pack()
+        test_button = tk.Button(self, text="Test", command=lambda: print(name_input.get()))
+        test_button.pack()
 
 
 app = ApplicationFramework()
