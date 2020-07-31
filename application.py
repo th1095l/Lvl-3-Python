@@ -5,20 +5,24 @@ LARGE_FONT = ("Verdana", 12)
 class ApplicationFramework(tk.Tk):
     
     def __init__(self, *args, **kwargs):
-        
         tk.Tk.__init__(self, *args, **kwargs)
+
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
-        self.frames = {}
-        frame = OpeningPage(container, self)
-        self.frames[OpeningPage] = frame
-        frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(OpeningPage)
 
-    def show_frame(self, cont):
-        frame = self.frames[cont]
+        self.frames = {}
+        for F in (OpeningPage, QuestionPage):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+        self.show_frame("OpeningPage")
+
+    def show_frame(self, page_name):
+        '''Show a frame for the given page name'''
+        frame = self.frames[page_name]
         frame.tkraise()
 
     @staticmethod
@@ -34,17 +38,26 @@ class ApplicationFramework(tk.Tk):
 class OpeningPage(tk.Frame):
 
     def __init__(self, parent, controller):
-
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Start Page", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
+        self.controller = controller
+        opening_title = tk.Label(self, text="Biology Quiz", font=LARGE_FONT)
+        opening_title.pack(pady=10, padx=10)
+        opening_subtitle = tk.Label(self, text="Hi, welcome to the biology quiz application.")
+        opening_subtitle.pack()
         name_validation_command = self.register(ApplicationFramework.name_validate_command)
         name_label = tk.Label(self, text="Please enter your name:")
         name_input = tk.Entry(self, validate='all', validatecommand=(name_validation_command, '%P'), font=("Calibri", 11))
         name_label.pack()
         name_input.pack()
-        test_button = tk.Button(self, text="Test", command=lambda: print(name_input.get()))
-        test_button.pack()
+        next_button = tk.Button(self, text="Next", command=lambda: controller.show_frame("QuestionPage"))
+        next_button.pack()
+
+class QuestionPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        
 
 
 app = ApplicationFramework()
