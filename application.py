@@ -54,9 +54,49 @@ class OpeningPage(tk.Frame):
 
 class QuestionPage(tk.Frame):
 
+    global biology_questions
+    biology_questions = {
+        "question_1":
+            {"question": "test question 1",
+             "answers":
+                 {"a": "something",
+                  "b": "something 2",
+                  "c": "something 3",
+                  "d": "something 4"},
+             "correct_answer": "b"},
+        "question_2":
+            {"question": "test question 2",
+             "answers":
+                 {"a": "somethinga",
+                  "b": "somethinga 2",
+                  "c": "somethinga 3",
+                  "d": "somethinga 4"},
+             "correct_answer": "c"}
+        }
+    
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        question_frame = tk.Frame(self, relief="sunken", bg="black")
+        question_frame.pack(fill="both", padx=10, pady=5)
+        test_question = tk.Label(question_frame, text="Question frame")
+        test_question.pack()
+        answer_frame = tk.Frame(self, relief="sunken", bg="red")
+        answer_frame.pack(fill="both", padx=10, pady=5)
+        test_answer = tk.Label(answer_frame, text="Answer frame")
+        test_answer.pack()
+        question_label_array = []
+        for F in biology_questions:
+            question_label_array.append(tk.Label(question_frame, text=biology_questions[F]["question"]))
+            print (question_label_array)
+        question_label_array[0].pack()
+        iterator = 1
+        text_next_button = tk.Button(self, text="next_question", command=lambda: question_label_array[iterator].pack())
+        text_next_button.pack()
+        
+        
+        
         
 
 
