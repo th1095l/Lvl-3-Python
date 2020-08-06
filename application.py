@@ -1,5 +1,7 @@
 import tkinter as tk
 from string import punctuation
+from random import randint
+from questions import *
 LARGE_FONT = ("Verdana", 12)
 
 class ApplicationFramework(tk.Tk):
@@ -53,10 +55,36 @@ class OpeningPage(tk.Frame):
         next_button.pack()
 
 class QuestionPage(tk.Frame):
+    
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        self.question_counter = 0
+        question_frame = tk.Frame(self, relief="sunken", bg="black")
+        question_frame.pack(fill="both", padx=10, pady=5)
+        test_question = tk.Label(question_frame, text="Question frame")
+        test_question.grid(row=0, column=1)
+        answer_frame = tk.Frame(self, relief="sunken", bg="red")
+        answer_frame.pack(fill="both", padx=10, pady=5)
+        test_answer = tk.Label(answer_frame, text="Answer frame")
+        test_answer.pack()
+        self.question_label_array = []
+        for F, i in zip((biology_questions), (range(len(biology_questions)))):
+            question_label = tk.Label(question_frame, text=biology_questions[F]["question"])
+            self.question_label_array.append(question_label)
+            self.question_label_array[i].grid(row=0, column=0, sticky="nsew")
+        self.iterate_question(0)
+        next_question_button = tk.Button(self, text="next", command=lambda: self.iterate_question(self.question_counter))
+        next_question_button.pack()
+
+
+    def iterate_question(self, question):
+        current_question = self.question_label_array[question]
+        self.question_counter += 1
+        current_question.tkraise()
+        
+        
         
 
 
