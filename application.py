@@ -68,12 +68,25 @@ class QuestionPage(tk.Frame):
         answer_frame = tk.Frame(self, relief="sunken", bg="red")
         answer_frame.pack(fill="both", padx=10, pady=5)
         test_answer = tk.Label(answer_frame, text="Answer frame")
-        test_answer.pack()
+        test_answer.grid(row=0, column=1)
         self.question_label_array = []
+        self.answers_array = []
         for F, i in zip((biology_questions), (range(len(biology_questions)))):
             question_label = tk.Label(question_frame, text=biology_questions[F]["question"])
             self.question_label_array.append(question_label)
             self.question_label_array[i].grid(row=0, column=0, sticky="nsew")
+            answer_a = tk.Button(answer_frame, text=biology_questions[F]["answers"]["a"])
+            answer_b = tk.Button(answer_frame, text=biology_questions[F]["answers"]["b"])
+            answer_c = tk.Button(answer_frame, text=biology_questions[F]["answers"]["c"])
+            answer_d = tk.Button(answer_frame, text=biology_questions[F]["answers"]["d"])
+            print(biology_questions[F]["answers"]["a"])
+            print(biology_questions[F]["answers"]["b"])
+            self.answers_array.append([answer_a, answer_b, answer_c, answer_d])
+            self.answers_array[i][0].grid(row=0,column=0, sticky="nsew")
+            self.answers_array[i][1].grid(row=0,column=1, sticky="nsew")
+            self.answers_array[i][2].grid(row=0,column=2, sticky="nsew")
+            self.answers_array[i][3].grid(row=0,column=3, sticky="nsew")
+            
         self.iterate_question(0)
         next_question_button = tk.Button(self, text="next", command=lambda: self.iterate_question(self.question_counter))
         next_question_button.pack()
@@ -83,6 +96,11 @@ class QuestionPage(tk.Frame):
         current_question = self.question_label_array[question]
         self.question_counter += 1
         current_question.tkraise()
+        self.answers_array[question][0].tkraise()
+        self.answers_array[question][1].tkraise()
+        self.answers_array[question][2].tkraise()
+        self.answers_array[question][3].tkraise()
+        
         
         
         
