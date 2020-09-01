@@ -1,8 +1,15 @@
 import tkinter as tk
 from string import punctuation
-from random import randint
-from questions import *
+from random import shuffle, randint
+from questions import biology_questions
 LARGE_FONT = ("Verdana", 12)
+
+answer_list = {
+    "correct":
+        [],
+    "incorrect":
+        []
+    }
 
 class ApplicationFramework(tk.Tk):
     
@@ -71,38 +78,62 @@ class QuestionPage(tk.Frame):
         test_answer.grid(row=0, column=1)
         self.question_label_array = []
         self.answers_array = []
+        self.used_questions = []
+        self.order_of_questions = list(range(7))
+        shuffle(self.order_of_questions)
+        print(self.order_of_questions)
+        self.question_iterator = 1
         for F, i in zip((biology_questions), (range(len(biology_questions)))):
             question_label = tk.Label(question_frame, text=biology_questions[F]["question"])
             self.question_label_array.append(question_label)
             self.question_label_array[i].grid(row=0, column=0, sticky="nsew")
-            answer_a = tk.Button(answer_frame, text=biology_questions[F]["answers"]["a"])
-            answer_b = tk.Button(answer_frame, text=biology_questions[F]["answers"]["b"])
-            answer_c = tk.Button(answer_frame, text=biology_questions[F]["answers"]["c"])
-            answer_d = tk.Button(answer_frame, text=biology_questions[F]["answers"]["d"])
-            print(biology_questions[F]["answers"]["a"])
-            print(biology_questions[F]["answers"]["b"])
+            answer_a = tk.Button(answer_frame, text=biology_questions[F]["answers"]["a"], command=lambda i=i: self.check_answer(i, "a"))
+            answer_b = tk.Button(answer_frame, text=biology_questions[F]["answers"]["b"], command=lambda i=i: self.check_answer(i, "b"))
+            answer_c = tk.Button(answer_frame, text=biology_questions[F]["answers"]["c"], command=lambda i=i: self.check_answer(i, "c"))
+            answer_d = tk.Button(answer_frame, text=biology_questions[F]["answers"]["d"], command=lambda i=i: self.check_answer(i, "d"))
             self.answers_array.append([answer_a, answer_b, answer_c, answer_d])
             self.answers_array[i][0].grid(row=0,column=0, sticky="nsew")
             self.answers_array[i][1].grid(row=0,column=1, sticky="nsew")
             self.answers_array[i][2].grid(row=0,column=2, sticky="nsew")
             self.answers_array[i][3].grid(row=0,column=3, sticky="nsew")
-            
-        self.iterate_question(0)
-        next_question_button = tk.Button(self, text="next", command=lambda: self.iterate_question(self.question_counter))
-        next_question_button.pack()
 
+        self.next_button = tk.Button(answer_frame, text="Next", command=lambda: self.iterate_question(), state="disabled")
+        self.next_button.grid()
+        self.initialize_quiz()
+        
 
-    def iterate_question(self, question):
-        current_question = self.question_label_array[question]
-        self.question_counter += 1
-        current_question.tkraise()
-        self.answers_array[question][0].tkraise()
-        self.answers_array[question][1].tkraise()
-        self.answers_array[question][2].tkraise()
-        self.answers_array[question][3].tkraise()
-        
-        
-        
+    def initialize_quiz(self):
+        first_question = self.order_of_questions[0]
+        self.question_label_array[first_question].tkraise()
+        self.answers_array[first_question][0].tkraise()
+        self.answers_array[first_question][1].tkraise()
+        self.answers_array[first_question][2].tkraise()
+        self.answers_array[first_question][3].tkraise()
+
+    def iterate_question(self):
+        next_question = self.order_of_questions[self.question_iterator]
+        self.question_label_array[next_question].tkraise()
+        self.answers_array[next_question][0].tkraise()
+        self.answers_array[next_question][1].tkraise()
+        self.answers_array[next_question][2].tkraise()
+        self.answers_array[next_question][3].tkraise()
+        self.question_iterator += 1
+        self.next_button['state'] = "disabled"
+
+    def check_answer(self, question_number, answer_value):
+        if biology_questions[question_number]["correct_answer"] == answer_value:
+            print("you are correct")
+            answer_list["correct"].append(1)
+        else:
+            print("try again")
+            answer_list["incorrect"].append(1)
+        current_question = self.order_of_questions[self.question_iterator - 1]
+        self.question_label_array[current_question].tkraise()
+        self.answers_array[current_question][0]['state'] = "disabled"
+        self.answers_array[current_question][1]['state'] = "disabled"
+        self.answers_array[current_question][2]['state'] = "disabled"
+        self.answers_array[current_question][3]['state'] = "disabled"
+        self.next_button['state'] = "normal"
         
 
 
