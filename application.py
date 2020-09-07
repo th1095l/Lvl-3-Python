@@ -15,14 +15,12 @@ class ApplicationFramework(tk.Tk):
     
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
-
         self.frames = {}
-        for F in (OpeningPage, QuestionPage):
+        for F in (OpeningPage, QuestionPage, FinalPage):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -63,11 +61,9 @@ class OpeningPage(tk.Frame):
 
 class QuestionPage(tk.Frame):
     
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.question_counter = 0
         question_frame = tk.Frame(self, relief="sunken", bg="black")
         question_frame.pack(fill="both", padx=10, pady=5)
         test_question = tk.Label(question_frame, text="Question frame")
@@ -81,8 +77,9 @@ class QuestionPage(tk.Frame):
         self.used_questions = []
         self.order_of_questions = list(range(7))
         shuffle(self.order_of_questions)
-        print(self.order_of_questions)
         self.question_iterator = 1
+        self.correct_answers = tk.IntVar(value=0)
+        self.incorrect_answers = tk.IntVar(value=0)
         for F, i in zip((biology_questions), (range(len(biology_questions)))):
             question_label = tk.Label(question_frame, text=biology_questions[F]["question"])
             self.question_label_array.append(question_label)
@@ -92,33 +89,30 @@ class QuestionPage(tk.Frame):
             answer_c = tk.Button(answer_frame, text=biology_questions[F]["answers"]["c"], command=lambda i=i: self.check_answer(i, "c"))
             answer_d = tk.Button(answer_frame, text=biology_questions[F]["answers"]["d"], command=lambda i=i: self.check_answer(i, "d"))
             self.answers_array.append([answer_a, answer_b, answer_c, answer_d])
-            self.answers_array[i][0].grid(row=0,column=0, sticky="nsew")
-            self.answers_array[i][1].grid(row=0,column=1, sticky="nsew")
-            self.answers_array[i][2].grid(row=0,column=2, sticky="nsew")
-            self.answers_array[i][3].grid(row=0,column=3, sticky="nsew")
-
+            for j in range(0, 4): self.answers_array[i][j].grid(row=0,column=j, sticky="nsew")
         self.next_button = tk.Button(answer_frame, text="Next", command=lambda: self.iterate_question(), state="disabled")
         self.next_button.grid()
-        self.initialize_quiz()
-        
+        self.initialize_quiz()        
 
     def initialize_quiz(self):
         first_question = self.order_of_questions[0]
         self.question_label_array[first_question].tkraise()
-        self.answers_array[first_question][0].tkraise()
-        self.answers_array[first_question][1].tkraise()
-        self.answers_array[first_question][2].tkraise()
-        self.answers_array[first_question][3].tkraise()
-
+        for i in range(0, 4): self.answers_array[first_question][i].tkraise()
+        
     def iterate_question(self):
-        next_question = self.order_of_questions[self.question_iterator]
+        print(sum(answer_list["correct"]))
+        try:
+            next_question = self.order_of_questions[self.question_iterator]
+        except IndexError:
+            self.correct_answers.set(sum(answer_list["correct"]))
+            self.incorrect_answers.set(sum(answer_list["incorrect"]))
+            self.controller.frames[FinalPage.__name__].output()
+            return self.controller.show_frame("FinalPage")
         self.question_label_array[next_question].tkraise()
-        self.answers_array[next_question][0].tkraise()
-        self.answers_array[next_question][1].tkraise()
-        self.answers_array[next_question][2].tkraise()
-        self.answers_array[next_question][3].tkraise()
+        for i in range(0,4): self.answers_array[next_question][i].tkraise()
         self.question_iterator += 1
         self.next_button['state'] = "disabled"
+        
 
     def check_answer(self, question_number, answer_value):
         if biology_questions[question_number]["correct_answer"] == answer_value:
@@ -129,12 +123,20 @@ class QuestionPage(tk.Frame):
             answer_list["incorrect"].append(1)
         current_question = self.order_of_questions[self.question_iterator - 1]
         self.question_label_array[current_question].tkraise()
-        self.answers_array[current_question][0]['state'] = "disabled"
-        self.answers_array[current_question][1]['state'] = "disabled"
-        self.answers_array[current_question][2]['state'] = "disabled"
-        self.answers_array[current_question][3]['state'] = "disabled"
+        for i in range(0,4): self.answers_array[current_question][i]['state'] = "disabled"
         self.next_button['state'] = "normal"
-        
+
+class FinalPage(tk.Frame):
+
+        def __init__(self, parent, controller):
+            tk.Frame.__init__(self, parent)
+            self.controller = controller
+            self.final_output = tk.StringVar()
+            final_score = tk.Label(self, textvariable=self.final_output)
+            final_score.grid()
+
+        def output(self):
+            self.final_output.set("Congratulations, you got " + str(self.controller.frames[QuestionPage.__name__].correct_answers.get()) + " correct and " + str(self.controller.frames[QuestionPage.__name__].incorrect_answers.get()) + " incorrect.")
 
 
 app = ApplicationFramework()
