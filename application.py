@@ -1,8 +1,44 @@
 import tkinter as tk
 from string import punctuation
-from random import shuffle, randint
+from random import shuffle
 from questions import biology_questions
-LARGE_FONT = ("Verdana", 12)
+from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
+import tkinter.font as tkFont
+
+FR_PRIVATE  = 0x10
+FR_NOT_ENUM = 0x20
+
+def loadfont(fontpath, private=False, enumerable=False):
+    '''
+    Makes fonts located in file `fontpath` available to the font system.
+    `private`     if True, other processes cannot see this font, and this 
+                  font will be unloaded when the process dies
+    `enumerable`  if True, this font will appear when enumerating fonts
+    See https://msdn.microsoft.com/en-us/library/dd183327(VS.85).aspx
+    '''
+    # This function was taken from
+    # https://github.com/ifwe/digsby/blob/f5fe00244744aa131e07f09348d10563f3d8fa99/digsby/src/gui/native/win/winfonts.py#L15
+    # This function is written for Python 2.x. For 3.x, you
+    # have to convert the isinstance checks to bytes and str
+    if isinstance(fontpath, bytes):
+        pathbuf = create_string_buffer(fontpath)
+        AddFontResourceEx = windll.gdi32.AddFontResourceExA
+    elif isinstance(fontpath, str):
+        pathbuf = create_unicode_buffer(fontpath)
+        AddFontResourceEx = windll.gdi32.AddFontResourceExW
+    else:
+        raise TypeError('fontpath must be of type str or unicode')
+
+    flags = (FR_PRIVATE if private else 0) | (FR_NOT_ENUM if not enumerable else 0)
+    numFontsAdded = AddFontResourceEx(byref(pathbuf), flags, 0)
+    return bool(numFontsAdded)
+
+loadfont("Mukta-Medium.ttf")
+loadfont("Mukta-Light.ttf")
+loadfont("Mukta-Regular.ttf")
+loadfont("Nunito-Bold.ttf")
+loadfont("Nunito-Regular.ttf")
+TITLE_FONT = ("Calibri", 12)
 
 answer_list = {
     "correct":
@@ -25,6 +61,7 @@ class ApplicationFramework(tk.Tk):
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
+            frame.configure(bg="#ffffff")
         self.show_frame("OpeningPage")
 
     def show_frame(self, page_name):
@@ -47,35 +84,44 @@ class OpeningPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        opening_title = tk.Label(self, text="Biology Quiz", font=LARGE_FONT)
-        opening_title.pack(pady=10, padx=10)
-        opening_subtitle = tk.Label(self, text="Hi, welcome to the biology quiz application.")
-        opening_subtitle.pack()
+        logo_source = tk.PhotoImage(file="Logo_Small.gif")
+        logo = tk.Label(self, image=logo_source)
+        logo.image = logo_source
+        logo.grid(row=0, column=1, columnspan=3)
+        opening_title = tk.Label(self, text="General Biology Quiz", font=("Nunito Bold", 22))
+        opening_title.grid(row=1, column=1, columnspan=3, pady=10)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(4, weight=1)
+        opening_subtitle = tk.Label(self, text="Welcome to the biology quiz application.", font=("Nunito Regular", 16))
+        opening_subtitle.grid(row=2, column=2, columnspan=2, pady=5)
         name_validation_command = self.register(ApplicationFramework.name_validate_command)
-        name_label = tk.Label(self, text="Please enter your name:")
+        name_label = tk.Label(self, text="Please enter your name", font=("Mukta Medium", 16))
         name_input = tk.Entry(self, validate='all', validatecommand=(name_validation_command, '%P'), font=("Calibri", 11))
-        name_label.pack()
-        name_input.pack()
+        name_label.grid(row=3, column=2, pady=30, padx=20)
+        name_input.grid(row=3, column=3)
         next_button = tk.Button(self, text="Next", command=lambda: controller.show_frame("QuestionPage"))
-        next_button.pack()
+        next_button.grid(row=4, column=1, columnspan=3)
+        opening_widgets = [self, logo, opening_title, opening_subtitle, name_label, name_input]
+        for i in opening_widgets: i.configure(bg="#ffffff")
 
 class QuestionPage(tk.Frame):
     
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        question_frame = tk.Frame(self, relief="sunken", bg="black")
-        question_frame.pack(fill="both", padx=10, pady=5)
-        test_question = tk.Label(question_frame, text="Question frame")
-        test_question.grid(row=0, column=1)
+        question_frame = tk.Frame(self, relief="sunken", bg="black", height=self.winfo_height()/2, width=100)
+        question_frame.pack_propagate(0)
+        question_frame.pack(expand="True", fill='both', padx=5, pady=5)
+        progress_frame = tk.Frame(self, relief="sunken", bg="grey")
+        progress_frame.pack(fill='both')
         answer_frame = tk.Frame(self, relief="sunken", bg="red")
-        answer_frame.pack(fill="both", padx=10, pady=5)
+        answer_frame.pack(fill='both', padx=10, pady=5)
         test_answer = tk.Label(answer_frame, text="Answer frame")
         test_answer.grid(row=0, column=1)
         self.question_label_array = []
         self.answers_array = []
         self.used_questions = []
-        self.order_of_questions = list(range(7))
+        self.order_of_questions = list(range(len(biology_questions)))
         shuffle(self.order_of_questions)
         self.question_iterator = 1
         self.correct_answers = tk.IntVar(value=0)
@@ -84,6 +130,7 @@ class QuestionPage(tk.Frame):
             question_label = tk.Label(question_frame, text=biology_questions[F]["question"])
             self.question_label_array.append(question_label)
             self.question_label_array[i].grid(row=0, column=0, sticky="nsew")
+            self.question_label_array[i].configure(bg="black")
             answer_a = tk.Button(answer_frame, text=biology_questions[F]["answers"]["a"], command=lambda i=i: self.check_answer(i, "a"))
             answer_b = tk.Button(answer_frame, text=biology_questions[F]["answers"]["b"], command=lambda i=i: self.check_answer(i, "b"))
             answer_c = tk.Button(answer_frame, text=biology_questions[F]["answers"]["c"], command=lambda i=i: self.check_answer(i, "c"))
