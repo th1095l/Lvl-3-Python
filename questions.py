@@ -1,58 +1,66 @@
 biology_questions = {
         0:
-            {"question": "test question 1",
+            {"question": "Which of the following is a species name?",
              "answers":
-                 {"a": "a",
-                  "b": "correct b",
-                  "c": "c",
-                  "d": "d"},
-             "correct_answer": "b"},
+                 {"a": "Panthera Leo",
+                  "b": "Canidae",
+                  "c": "Protozoa",
+                  "d": "Animal"},
+             "correct_answer": "a"},
         1:
-            {"question": "test question 2",
+            {"question": "How many vital organs are there?",
              "answers":
-                 {"a": "2 a",
-                  "b": "2 b",
-                  "c": " correct 2 c",
-                  "d": "2 d"},
-             "correct_answer": "c"},
+                 {"a": "4",
+                  "b": "5",
+                  "c": "6",
+                  "d": "7"},
+             "correct_answer": "a"},
         2:
-            {"question": "test question 3",
+            {"question": "What is the powerhouse of the cell?",
              "answers":
-                 {"a": "3 a",
-                  "b": "3 b",
-                  "c": "3 c",
-                  "d": "correct 3 d"},
-             "correct_answer": "d"},
+                 {"a": "Vacuole",
+                  "b": "Mitochondria",
+                  "c": "Nucleus",
+                  "d": "Chloroplast"},
+             "correct_answer": "b"},
         3:
-            {"question": "test question 4",
+            {"question": "What does DNA stand for?",
              "answers":
-                 {"a": "4 a",
-                  "b": "4 b",
-                  "c": "correct 4 c",
-                  "d": "4 d"},
-             "correct_answer": "c"},
+                 {"a": "Deoxynucleic Acid",
+                  "b": "Deribonucleix Acid",
+                  "c": "Ribonucleic Acid",
+                  "d": "Deoxyribonucleic Acid"},
+             "correct_answer": "d"},
         4:
-            {"question": "test question 5",
+            {"question": "What is low blood sugar called?",
              "answers":
-                 {"a": "5 a",
-                  "b": "5 b",
-                  "c": "correct 5 c",
-                  "d": "5 d"},
-             "correct_answer": "c"},
+                 {"a": "Hyperglycemia",
+                  "b": "Hypoglycemia",
+                  "c": "Heteroglycemia",
+                  "d": "Homoglycemia"},
+             "correct_answer": "b"},
         5:
-            {"question": "test question 6",
+            {"question": "What is speciation through geographic isolation called?",
              "answers":
-                 {"a": "6 a",
-                  "b": "6 b",
-                  "c": "correct 6 c",
-                  "d": "6 d"},
+                 {"a": "Parapatric",
+                  "b": "Peripatric",
+                  "c": "Allopatric",
+                  "d": "Patopatric"},
              "correct_answer": "c"},
         6:
-            {"question": "test question 7",
+            {"question": "How many chromosomes does a human have?",
              "answers":
-                 {"a": "7 a",
-                  "b": "7 b",
-                  "c": "correct 7 c",
-                  "d": "7 d"},
-             "correct_answer": "c"}
+                 {"a": "23",
+                  "b": "10",
+                  "c": "39",
+                  "d": "46"},
+             "correct_answer": "d"},
+        7:
+            {"question": "What is the most recent ancestor of Homo Sapiens?",
+             "answers":
+                 {"a": "Homo Ergaster",
+                  "b": "Homo Erectus",
+                  "c": "Homo Neaderthalensis",
+                  "d": "Homo Heidelbergensis"},
+             "correct_answer": "d"}
         }
