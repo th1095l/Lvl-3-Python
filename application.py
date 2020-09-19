@@ -9,17 +9,8 @@ FR_PRIVATE  = 0x10
 FR_NOT_ENUM = 0x20
 
 def loadfont(fontpath, private=False, enumerable=False):
-    '''
-    Makes fonts located in file `fontpath` available to the font system.
-    `private`     if True, other processes cannot see this font, and this 
-                  font will be unloaded when the process dies
-    `enumerable`  if True, this font will appear when enumerating fonts
-    See https://msdn.microsoft.com/en-us/library/dd183327(VS.85).aspx
-    '''
     # This function was taken from
     # https://github.com/ifwe/digsby/blob/f5fe00244744aa131e07f09348d10563f3d8fa99/digsby/src/gui/native/win/winfonts.py#L15
-    # This function is written for Python 2.x. For 3.x, you
-    # have to convert the isinstance checks to bytes and str
     if isinstance(fontpath, bytes):
         pathbuf = create_string_buffer(fontpath)
         AddFontResourceEx = windll.gdi32.AddFontResourceExA
@@ -33,12 +24,12 @@ def loadfont(fontpath, private=False, enumerable=False):
     numFontsAdded = AddFontResourceEx(byref(pathbuf), flags, 0)
     return bool(numFontsAdded)
 
-loadfont("Mukta-Medium.ttf")
-loadfont("Mukta-Light.ttf")
-loadfont("Mukta-Regular.ttf")
-loadfont("Nunito-Bold.ttf")
-loadfont("Nunito-Regular.ttf")
-TITLE_FONT = ("Calibri", 12)
+for font in ["Mukta-Medium.ttf", "Mukta-Light.ttf", "Mukta-Regular.ttf", "Nunito-Bold.ttf", "Nunito-Regular.ttf"]: loadfont(font)
+PRIMARY_BLACK = '#191308'
+SECONDARY_BLACK = '#322A26'
+DARK_BLUE = "#454B66"
+MEDIUM_BLUE = "#677DB7"
+LIGHT_BLUE = "#9CA3DB"
 
 answer_list = {
     "correct":
@@ -51,6 +42,15 @@ class ApplicationFramework(tk.Tk):
     
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
+        self.geometry("800x600")
+        # Center application to center of screen | Source: https://yagisanatode.com/2018/02/24/how-to-center-the-main-window-on-the-screen-in-tkinter-with-python-3/
+        windowWidth = self.winfo_reqwidth()
+        windowHeight = self.winfo_reqheight()
+        # Gets both half the screen width/height and window width/height
+        positionRight = int(self.winfo_screenwidth()/3 - windowWidth/2)
+        positionDown = int(self.winfo_screenheight()/3 - windowHeight)
+        # Positions the window in the center of the page.
+        self.geometry("+{}+{}".format(positionRight, positionDown))
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -78,6 +78,7 @@ class ApplicationFramework(tk.Tk):
         if len(new_text) > 20:
             return False
         return not new_text.isdigit()
+    
 
 class OpeningPage(tk.Frame):
 
@@ -92,6 +93,11 @@ class OpeningPage(tk.Frame):
         opening_title.grid(row=1, column=1, columnspan=3, pady=10)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(4, weight=1)
+        #frame_left = tk.Frame(self, bg=DARK_BLUE, height=int(self.winfo_screenheight()), width=100)
+        #self.grid_propagate(0)
+        #frame_left.grid(column=0, row=0, rowspan=20)
+        #frame_right = tk.Frame(self, bg=DARK_BLUE, height=int(self.winfo_screenheight()), width=100)
+        #frame_right.grid(column=4, row=0, rowspan=20)
         opening_subtitle = tk.Label(self, text="Welcome to the biology quiz application.", font=("Nunito Regular", 16))
         opening_subtitle.grid(row=2, column=2, columnspan=2, pady=5)
         name_validation_command = self.register(ApplicationFramework.name_validate_command)
@@ -109,15 +115,13 @@ class QuestionPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        question_frame = tk.Frame(self, relief="sunken", bg="black", height=self.winfo_height()/2, width=100)
-        question_frame.pack_propagate(0)
-        question_frame.pack(expand="True", fill='both', padx=5, pady=5)
+        question_frame = tk.Frame(self, relief="sunken", height=100, width=100, bg=MEDIUM_BLUE)
+        self.pack_propagate(0)
+        question_frame.pack(expand="true", padx=0, pady=5)
         progress_frame = tk.Frame(self, relief="sunken", bg="grey")
-        progress_frame.pack(fill='both')
-        answer_frame = tk.Frame(self, relief="sunken", bg="red")
-        answer_frame.pack(fill='both', padx=10, pady=5)
-        test_answer = tk.Label(answer_frame, text="Answer frame")
-        test_answer.grid(row=0, column=1)
+        progress_frame.pack(fill='both', pady=0)
+        answer_frame = tk.Frame(self, relief="sunken", bg=DARK_BLUE)
+        answer_frame.pack(fill='both', expand="true", padx=10, pady=10)
         self.question_label_array = []
         self.answers_array = []
         self.used_questions = []
@@ -126,28 +130,56 @@ class QuestionPage(tk.Frame):
         self.question_iterator = 1
         self.correct_answers = tk.IntVar(value=0)
         self.incorrect_answers = tk.IntVar(value=0)
+        answer_frame.grid_columnconfigure(0, weight=1)
+        answer_frame.grid_columnconfigure(3, weight=1)
+        answer_frame.grid_rowconfigure(0, weight=1)
+        answer_frame.grid_rowconfigure(4, weight=2)
+        self.confirm_button = tk.Button(answer_frame, text="Confirm", command=lambda: self.end_quiz())
+        self.progress_bar = tk.Frame(progress_frame, width=40, bg="grey", height=40)
+        self.progress_bar.pack()
+        self.correct_label_contents = tk.StringVar()
+        self.correct_label = tk.Label(answer_frame, textvariable=self.correct_label_contents, bg=DARK_BLUE, fg="#ffffff", font=("Mukta Regular", 14), width=15)
+        self.correct_label.grid(row=1, column=3)
+        self.next_button = tk.Button(answer_frame, text="Next", command=lambda: self.iterate_question(), state="disabled", font=("Mukta Regular", 14))
+        self.next_button.grid(row=3, column=1, ipadx=10)
+        self.skip_button = tk.Button(answer_frame, text="Skip", command=lambda: self.iterate_question(), font=("Mukta Regular", 14))
+        self.skip_button.grid(row=3, column=2, ipadx=10)
+        self.previous_button = tk.Button(answer_frame, text="Previous", command=lambda: self.previous_question(), font=("Mukta Regular", 14))
+        self.previous_button.grid(row=3, column=3, ipadx=10)
         for F, i in zip((biology_questions), (range(len(biology_questions)))):
-            question_label = tk.Label(question_frame, text=biology_questions[F]["question"])
+            question_label = tk.Label(question_frame, text=biology_questions[F]["question"], font=("Nunito Bold", 24))
             self.question_label_array.append(question_label)
             self.question_label_array[i].grid(row=0, column=0, sticky="nsew")
-            self.question_label_array[i].configure(bg="black")
-            answer_a = tk.Button(answer_frame, text=biology_questions[F]["answers"]["a"], command=lambda i=i: self.check_answer(i, "a"))
-            answer_b = tk.Button(answer_frame, text=biology_questions[F]["answers"]["b"], command=lambda i=i: self.check_answer(i, "b"))
-            answer_c = tk.Button(answer_frame, text=biology_questions[F]["answers"]["c"], command=lambda i=i: self.check_answer(i, "c"))
-            answer_d = tk.Button(answer_frame, text=biology_questions[F]["answers"]["d"], command=lambda i=i: self.check_answer(i, "d"))
+            self.question_label_array[i].configure(fg=PRIMARY_BLACK, bg="white")
+            answer_a = tk.Button(answer_frame, text=biology_questions[F]["answers"]["a"], command=lambda i=i: self.check_answer(i, "a"), font=("Mukta Medium", 18))
+            answer_b = tk.Button(answer_frame, text=biology_questions[F]["answers"]["b"], command=lambda i=i: self.check_answer(i, "b"), font=("Mukta Medium", 18))
+            answer_c = tk.Button(answer_frame, text=biology_questions[F]["answers"]["c"], command=lambda i=i: self.check_answer(i, "c"), font=("Mukta Medium", 18))
+            answer_d = tk.Button(answer_frame, text=biology_questions[F]["answers"]["d"], command=lambda i=i: self.check_answer(i, "d"), font=("Mukta Medium", 18))
             self.answers_array.append([answer_a, answer_b, answer_c, answer_d])
-            for j in range(0, 4): self.answers_array[i][j].grid(row=0,column=j, sticky="nsew")
-        self.next_button = tk.Button(answer_frame, text="Next", command=lambda: self.iterate_question(), state="disabled")
-        self.next_button.grid()
-        self.initialize_quiz()        
+            for button in self.traverse(self.answers_array): button.configure(bg="white", bd=0, disabledforeground=LIGHT_BLUE, fg=PRIMARY_BLACK)
+            self.answers_array[i][0].grid(row=1,column=1, sticky="nsew", pady=10, padx=10)
+            self.answers_array[i][1].grid(row=1,column=2, sticky="nsew", pady=10)
+            self.answers_array[i][2].grid(row=2,column=1, sticky="nsew", pady=10, padx=10)
+            self.answers_array[i][3].grid(row=2,column=2, sticky="nsew", pady=10)
+                
+        
+        for button in [self.skip_button, self.previous_button, self.next_button]: button.configure(fg=SECONDARY_BLACK, bg="#ffffff", bd=0)
+        self.initialize_quiz()
+
+    def traverse(self, o, tree_types=(list, tuple)): # Taken from https://stackoverflow.com/questions/6340351/iterating-through-list-of-list-in-python
+            if isinstance(o, tree_types):
+                for value in o:
+                    for subvalue in self.traverse(value, tree_types):
+                        yield subvalue
+            else:
+                yield o
 
     def initialize_quiz(self):
         first_question = self.order_of_questions[0]
         self.question_label_array[first_question].tkraise()
         for i in range(0, 4): self.answers_array[first_question][i].tkraise()
         
-    def iterate_question(self):
-        print(sum(answer_list["correct"]))
+    def iterate_question(self, previous=0):
         try:
             next_question = self.order_of_questions[self.question_iterator]
         except IndexError:
@@ -159,19 +191,41 @@ class QuestionPage(tk.Frame):
         for i in range(0,4): self.answers_array[next_question][i].tkraise()
         self.question_iterator += 1
         self.next_button['state'] = "disabled"
-        
+        self.skip_button['state'] = "normal"
+        self.correct_label_contents.set("")
+        if next_question == biology_questions[-1]:
+            self.confirm_button.grid(row=3, column=5)
+        else:
+            self.confirm_button.grid_forget()
+
+    def previous_question(self, previous=0): #FINISH THE RESET FUNCTION AND IF STATEMENT IN THE END
+        if self.question_iterator == 1:
+            return
+        previous_question = self.order_of_questions[self.question_iterator - 2]
+        self.question_label_array[previous_question].tkraise()
+        for i in range(0,4): self.answers_array[previous_question][i].tkraise()
+        self.question_iterator -= 1
+        self.next_button['state'] = "disabled"
+        self.skip_button['state'] = "normal"
 
     def check_answer(self, question_number, answer_value):
+        correct_answer_value = biology_questions[question_number]["correct_answer"]
+        for widget in self.traverse(self.answers_array):
+            if widget.winfo_ismapped() == 1 and widget['text'] == biology_questions[question_number]["answers"][correct_answer_value]:
+                widget.configure(bg=MEDIUM_BLUE)
         if biology_questions[question_number]["correct_answer"] == answer_value:
-            print("you are correct")
             answer_list["correct"].append(1)
+            self.correct_label_contents.set("That was correct")
         else:
-            print("try again")
             answer_list["incorrect"].append(1)
+            self.correct_label_contents.set("That was incorrect")
         current_question = self.order_of_questions[self.question_iterator - 1]
         self.question_label_array[current_question].tkraise()
         for i in range(0,4): self.answers_array[current_question][i]['state'] = "disabled"
         self.next_button['state'] = "normal"
+        if next_question == biology_questions[-1]:
+            self.next_button['state'] = "disabled"
+        self.skip_button['state'] = "disabled"
 
 class FinalPage(tk.Frame):
 
@@ -180,20 +234,23 @@ class FinalPage(tk.Frame):
             self.controller = controller
             self.final_output = tk.StringVar()
             final_score = tk.Label(self, textvariable=self.final_output)
+            start_again = tk.Button(self, text="Start Again", command=lambda: self.reset_quiz())
+            start_again.grid()
             final_score.grid()
+            stop_quiz = tk.Button(self, text="Stop quiz", command=lambda: self.stop_quiz())
+            stop_quiz.grid()
+
+        def stop_quiz(self):
+            return
+
+        def reset_quiz(self):
+            pass
+            #self.destroy()
 
         def output(self):
-            self.final_output.set("Congratulations, you got " + str(self.controller.frames[QuestionPage.__name__].correct_answers.get()) + " correct and " + str(self.controller.frames[QuestionPage.__name__].incorrect_answers.get()) + " incorrect.")
-
+            self.final_output.set("Congratulations, you got " + str(self.controller.frames[QuestionPage.__name__].correct_answers.get()) +
+                                  " correct and " + str(self.controller.frames[QuestionPage.__name__].incorrect_answers.get()) + " incorrect, and you skipped " +
+                                  str(len(biology_questions) - (self.controller.frames[QuestionPage.__name__].correct_answers.get() + self.controller.frames[QuestionPage.__name__].incorrect_answers.get())))
 
 app = ApplicationFramework()
-app.geometry("800x600")
-# Center application to center of screen | Source: https://yagisanatode.com/2018/02/24/how-to-center-the-main-window-on-the-screen-in-tkinter-with-python-3/
-windowWidth = app.winfo_reqwidth()
-windowHeight = app.winfo_reqheight()
-# Gets both half the screen width/height and window width/height
-positionRight = int(app.winfo_screenwidth()/3 - windowWidth/2)
-positionDown = int(app.winfo_screenheight()/3 - windowHeight)
-# Positions the window in the center of the page.
-app.geometry("+{}+{}".format(positionRight, positionDown))
 app.mainloop()
