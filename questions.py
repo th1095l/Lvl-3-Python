@@ -1,3 +1,8 @@
+'''
+Seperate py file that holds all the questions for the biology program. It is easily extendable by simply adding another number (with commas) and copying the same format.
+
+To edit a question, change the text in the boxes next to 'question', 'answers' and put in the correct answer in 'correct_answer'.
+'''
 biology_questions = {
         0:
             {"question": "Which of the following is a species name?",
