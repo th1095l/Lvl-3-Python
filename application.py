@@ -166,8 +166,15 @@ class QuestionPage(tk.Frame):
         answer_frame.grid_rowconfigure(4, weight=2)
         # Creation of all buttons needed outside the frame where all the questions and answers are contained
         self.confirm_button = tk.Button(answer_frame, text="Confirm", command=lambda: self.iterate_question(end=True), font=BODY_SMALL)
-        self.progress_bar = tk.Frame(progress_frame, width=40, bg=MEDIUM_BLUE, height=40)
+        self.progress_bar = tk.Frame(progress_frame, bg=MEDIUM_BLUE, height=10)
         self.progress_bar.pack()
+        self.progress_bar_width = tk.DoubleVar()
+        self.progress_bar_width.set(self.question_iterator/len(biology_questions)*100)
+        self.actual_progress_bar = tk.Frame(self.progress_bar, bg=LIGHT_BLUE, height=20, width=self.progress_bar_width.get())
+        self.actual_progress_bar.grid(row=0,column=0)
+        self.progress_bar_backdrop = tk.Frame(self.progress_bar, bg="white", height=20, width=100)
+        self.progress_bar_backdrop.grid(row=0, column=0)
+        self.actual_progress_bar.tkraise()
         self.correct_label_contents = tk.StringVar()
         self.correct_label = tk.Label(answer_frame, textvariable=self.correct_label_contents, bg=DARK_BLUE, fg="#ffffff", font=BODY_MEDIUM, width=15)
         self.correct_label.grid(row=0, column=1, columnspan=4)
@@ -235,6 +242,8 @@ class QuestionPage(tk.Frame):
         self.question_label_array[next_question].tkraise()
         for i in range(0,4): self.answers_array[next_question][i].tkraise()
         self.question_iterator += 1
+        self.progress_bar_width.set(self.question_iterator/len(biology_questions)*100)
+        self.actual_progress_bar.configure(width=self.progress_bar_width.get())
         # Changes the state of each button for the next question
         self.next_button['state'] = "disabled"
         self.skip_button['state'] = "normal"
@@ -253,6 +262,8 @@ class QuestionPage(tk.Frame):
         self.question_label_array[previous_question].tkraise()
         for i in range(0,4): self.answers_array[previous_question][i].tkraise()
         self.question_iterator -= 1
+        self.progress_bar_width.set(self.question_iterator/len(biology_questions)*100)
+        self.actual_progress_bar.configure(width=self.progress_bar_width.get())
         self.next_button['state'] = "disabled"
         self.skip_button['state'] = "normal"
         if self.confirm_button.winfo_ismapped() == 1:
