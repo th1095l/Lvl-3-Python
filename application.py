@@ -119,7 +119,7 @@ class OpeningPage(tk.Frame):
         next_button = tk.Button(self, text="Next", command=lambda: self.next_button(), font=BODY_SMALL)
         next_button.configure(fg=SECONDARY_BLACK, bg=LIGHT_BLUE, bd=0)
         next_button.grid(row=4, column=1, columnspan=3, ipadx=10)
-        opening_subtitle = tk.Label(self, text="Welcome to the biology quiz application.", font=(TITLE_FONT, 16))
+        opening_subtitle = tk.Label(self, text="Kia ora, welcome to the biology quiz application.", font=(TITLE_FONT, 16))
         opening_subtitle.grid(row=2, column=2, columnspan=2, pady=5)
         name_validation_command = self.register(ApplicationFramework.name_validate_command)
         name_label = tk.Label(self, text="Please enter your name", font=("Mukta Medium", 16)) # Validates the entry widget
@@ -234,7 +234,7 @@ class QuestionPage(tk.Frame):
             if sum(answer_list["correct"]) >= (len(biology_questions)/3*2):
                 self.end_statement.set("Congratulations " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got excellence, with: \n")
             elif (len(biology_questions)/3) <= sum(answer_list["correct"]) < (len(biology_questions)/3*2):
-                self.end_statement.set("Good job " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got merit, with: \n")
+                self.end_statement.set("Kapai " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got merit, with: \n")
             else:
                 self.end_statement.set("Too bad " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got achieved/not achieved, with: \n")
             self.controller.frames[FinalPage.__name__].output()
