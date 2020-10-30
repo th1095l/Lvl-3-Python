@@ -13,12 +13,6 @@ SECONDARY_BLACK = '#322A26'
 DARK_BLUE = "#454B66"
 MEDIUM_BLUE = "#677DB7"
 LIGHT_BLUE = "#9CA3DB"
-answer_list = {
-    "correct":
-        [],
-    "incorrect":
-        []
-    }
 
 # Function for loading custom fonts
 def loadfont(fontpath, private=False, enumerable=False):
@@ -74,6 +68,10 @@ class ApplicationFramework(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
             frame.configure(bg="#ffffff")
         self.show_frame("OpeningPage")
+        self.answer_list = {
+            "correct": [],
+            "incorrect": []
+        }
 
     # Function to raise the next frame in the quiz
     def show_frame(self, page_name):
@@ -229,11 +227,11 @@ class QuestionPage(tk.Frame):
                 raise IndexError
         except IndexError:
             # Sets each variable based on the amount correct or incorrect
-            self.correct_answers.set(sum(answer_list["correct"]))
-            self.incorrect_answers.set(sum(answer_list["incorrect"]))
-            if sum(answer_list["correct"]) >= (len(biology_questions)/3*2):
+            self.correct_answers.set(sum(self.controller.answer_list["correct"]))
+            self.incorrect_answers.set(sum(self.controller.answer_list["incorrect"]))
+            if sum(self.controller.answer_list["correct"]) >= (len(biology_questions)/3*2):
                 self.end_statement.set("Congratulations " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got excellence, with: \n")
-            elif (len(biology_questions)/3) <= sum(answer_list["correct"]) < (len(biology_questions)/3*2):
+            elif (len(biology_questions)/3) <= sum(self.controller.answer_list["correct"]) < (len(biology_questions)/3*2):
                 self.end_statement.set("Kapai " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got merit, with: \n")
             else:
                 self.end_statement.set("Too bad " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got achieved/not achieved, with: \n")
@@ -272,15 +270,15 @@ class QuestionPage(tk.Frame):
             if widget.winfo_ismapped() == 1 and widget['text'] == biology_questions[question_number]["answers"][correct_answer_value]:
                 widget.configure(bg=MEDIUM_BLUE)
         if biology_questions[question_number]["correct_answer"] == answer_value:
-            answer_list["correct"].append(1)
+            self.controller.answer_list["correct"].append(1)
             self.correct_label_contents.set("That was correct")
         else:
-            answer_list["incorrect"].append(1)
+            self.controller.answer_list["incorrect"].append(1)
             self.correct_label_contents.set("That was incorrect")
         current_question = self.order_of_questions[self.question_iterator - 1]
         self.question_label_array[current_question].tkraise()
         for i in range(0,4): self.answers_array[current_question][i]['state'] = "disabled"
-        self.progress_bar_width.set((len(answer_list["correct"])+len(answer_list["incorrect"]))/len(biology_questions)*100)
+        self.progress_bar_width.set((len(self.controller.answer_list["correct"])+len(self.controller.answer_list["incorrect"]))/len(biology_questions)*100)
         self.actual_progress_bar.configure(width=self.progress_bar_width.get())
         self.actual_progress_bar.tkraise()
         self.next_button['state'] = "normal"
