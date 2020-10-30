@@ -234,7 +234,7 @@ class QuestionPage(tk.Frame):
             elif (len(biology_questions)/3) <= sum(self.controller.answer_list["correct"]) < (len(biology_questions)/3*2):
                 self.end_statement.set("Kapai " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got merit, with: \n")
             else:
-                self.end_statement.set("Too bad " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got achieved/not achieved, with: \n")
+                self.end_statement.set("Too bad " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got not achieved (or close to achieved), with: \n")
             self.controller.frames[FinalPage.__name__].output()
             return self.controller.show_frame("FinalPage")
         self.question_label_array[next_question].tkraise()
