@@ -234,7 +234,7 @@ class QuestionPage(tk.Frame):
             elif (len(biology_questions)/3) <= sum(self.controller.answer_list["correct"]) < (len(biology_questions)/3*2):
                 self.end_statement.set("Kapai " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got merit, with: \n")
             else:
-                self.end_statement.set("Too bad " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got not achieved (or close to achieved), with: \n")
+                self.end_statement.set("Too bad " + self.controller.frames[OpeningPage.__name__].name_input.get() + ", you got achieved/not achieved, with: \n")
             self.controller.frames[FinalPage.__name__].output()
             return self.controller.show_frame("FinalPage")
         self.question_label_array[next_question].tkraise()
@@ -298,19 +298,21 @@ class FinalPage(tk.Frame):
             final_page_title.grid(row=1, column=1, columnspan=3)
             self.final_output = tk.StringVar()
             final_score = tk.Label(self, textvariable=self.final_output, font=("Mukta Medium", 16))
+            legal_disclaimer = tk.Label(self, text="None of the code or features of this program have been unlawfully taken from others without permission,\n and thus no copyright laws have been violated.", font=("Mukta Medium", 8))
             # Define the buttons in order to either start again or stop the quiz
             start_again = tk.Button(self, text="Start Again", command=lambda: self.reset_quiz(), font=BODY_SMALL)
             start_again.grid(row=3, column=1, pady=50)
             final_score.grid(row=2, column=1, columnspan=2)
             stop_quiz = tk.Button(self, text="Stop quiz", command=lambda variable=self.controller.loop_decide_variable: self.stop_quiz(), font=BODY_SMALL)
             stop_quiz.grid(row=3, column=2, pady=50)
+            legal_disclaimer.grid(row=4, column=1, columnspan=2, sticky="S")
             logo_source = tk.PhotoImage(file="./images/Logo_Small.gif")
             logo = tk.Label(self, image=logo_source)
             logo.image = logo_source
             logo.grid(row=0, column=1, columnspan=3)
             self.grid_columnconfigure(0, weight=1)
             self.grid_columnconfigure(4, weight=1)
-            final_widgets = [final_score, start_again, stop_quiz, final_page_title, logo]
+            final_widgets = [final_score, start_again, stop_quiz, final_page_title, logo, legal_disclaimer]
             for i in final_widgets: i.configure(bg="#ffffff")
             start_again.configure(fg=SECONDARY_BLACK, bg=LIGHT_BLUE, bd=0)
             stop_quiz.configure(fg=SECONDARY_BLACK, bg=LIGHT_BLUE, bd=0)
